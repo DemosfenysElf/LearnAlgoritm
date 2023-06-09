@@ -1,128 +1,54 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 )
 
-type skobki struct {
-	i      int
-	skobka string
+type massiveVershine struct {
+	i     int
+	versh int
 }
 
 func main() {
-
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	text := scanner.Text()
-	s1 := split1(text)
-	//
-
-	var mFullSkobok []skobki
-	var mDropSkobok []skobki
-	for i, s := range s1 {
-		if (s == "(") || (s == ")") || (s == "[") || (s == "]") || (s == "{") || (s == "}") {
-			var sk1 skobki
-			sk1.skobka = s
-			sk1.i = i
-			mDropSkobok = append(mDropSkobok, sk1)
-			mFullSkobok = append(mFullSkobok, sk1)
-		}
+	var n, m int
+	var masM []massiveVershine
+	var M massiveVershine
+	fmt.Fscan(os.Stdin, &n)
+	for i := 0; i < n; i++ {
+		fmt.Fscan(os.Stdin, &m)
+		M.i = i
+		M.versh = m
+		masM = append(masM, M)
 	}
 
-	//
-	if len(mDropSkobok) != 0 {
-		ok := trueSk(mFullSkobok, mDropSkobok)
-		if ok == 0 {
-			fmt.Print("Success")
-		} else {
-			fmt.Print(ok)
-		}
-	} else {
-		fmt.Print("Success")
-	}
+	fmt.Println(lvlDreva(masM))
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
+func lvlDreva(masM []massiveVershine) (lvl int) {
+	var lvlVse []int
+	var lvlTek []int
 
-func split1(s string) []string {
-	chunks := make([]string, len(s))
-	for i := range chunks {
-		to := min(len(s), i+1)
-		chunks[i] = s[i:to]
-	}
-	return chunks
-}
+	n := len(masM)
+	lvlVse = append(lvlVse, -1)
+	for l := 0; l < n; l++ {
+		for j := 0; j < len(lvlVse); j++ {
 
-func trueSk(sFull, sDrop []skobki) int {
+			for i := 0; i < len(masM); i++ {
 
-	var iS int
-	for i, i2 := range sFull {
-		switch i2.skobka {
-		case "(":
-			iS++
-		case "{":
-			iS++
-		case "[":
-			iS++
-		case ")":
-			if iS == 0 {
-				return sFull[i].i + 1
-			}
-			if sDrop[iS-1].skobka == "(" {
-				if i != len(sFull) {
-					sDrop = append(sDrop[:iS-1], sDrop[iS+1:]...)
-					iS--
-				} else {
-					sDrop = sDrop[:iS-1]
+				if masM[i].versh == lvlVse[j] {
+					lvlTek = append(lvlTek, masM[i].i)
+					masM = append(masM[:i], masM[i+1:]...)
+					i--
 				}
-			} else {
-				return sFull[i].i + 1
 			}
-
-		case "}":
-			if iS == 0 {
-				return sFull[i].i + 1
-			}
-			if sDrop[iS-1].skobka == "{" {
-
-				if i != len(sFull) {
-					sDrop = append(sDrop[:iS-1], sDrop[iS+1:]...)
-					iS--
-				} else {
-					sDrop = sDrop[:iS-1]
-				}
-			} else {
-				return sFull[i].i + 1
-			}
-		case "]":
-			if iS == 0 {
-				return sFull[i].i + 1
-			}
-			if sDrop[iS-1].skobka == "[" {
-
-				if i != len(sFull) {
-					sDrop = append(sDrop[:iS-1], sDrop[iS+1:]...)
-					iS--
-				} else {
-					sDrop = sDrop[:iS-1]
-				}
-			} else {
-				return sFull[i].i + 1
-			}
-		default:
-
 		}
-	}
-	if len(sDrop) != 0 {
-		return sDrop[len(sDrop)-1].i + 1
+		if lvlTek != nil {
+			lvl++
+		}
+		lvlVse = append(lvlVse[len(lvlVse):], lvlTek...)
+		lvlTek = nil
 	}
 
-	return 0
+	return
 }
